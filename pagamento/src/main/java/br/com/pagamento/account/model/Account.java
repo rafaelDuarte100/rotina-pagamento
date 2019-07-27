@@ -1,6 +1,7 @@
 package br.com.pagamento.account.model;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,11 +10,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
+import br.com.pagamento.account.dto.AccountDTO;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -21,8 +20,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
-@Table(name="account", schema="public")
+@Table(name="account")
 public class Account implements Serializable {
 	
 	private static final long serialVersionUID = -2891410009810697423L;
@@ -34,15 +34,19 @@ public class Account implements Serializable {
 	private Long id;
 	
 	@Column(name="available_credit_limit")
-	@JsonSerialize(using = CustomAvailableLimitSerializer.class)
-	@JsonDeserialize(using = CustomAvailableLimitDeserialize.class)
-	@JsonProperty(value = "available_credit_limit")
 	private Double availableCreditLimit;
 	
 	@Column(name="available_withdrawal_limit")
-	@JsonProperty(value = "available_withdrawal_limit")
-	@JsonSerialize(using = CustomAvailableLimitSerializer.class)
-	@JsonDeserialize(using = CustomAvailableLimitDeserialize.class)
 	private Double availableWithdrawalLimit;
 	
+	public static Account toAccount(AccountDTO accountDTO) {
+        return builder().id(accountDTO.getId())
+						.availableCreditLimit(Optional.ofNullable(accountDTO.getAvailableCreditLimit())
+													  .map(availableCreditLimit -> availableCreditLimit.getAmount())
+													  .orElse(null))
+						.availableWithdrawalLimit(Optional.ofNullable(accountDTO.getAvailableWithdrawalLimit())
+													  .map(availableWithdrawalLimit -> availableWithdrawalLimit.getAmount())
+													  .orElse(null))
+                        .build();
+    }
 }
