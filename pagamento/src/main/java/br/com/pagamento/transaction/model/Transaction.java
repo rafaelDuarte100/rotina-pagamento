@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import br.com.pagamento.account.model.Account;
+import br.com.pagamento.transaction.dto.TransactionDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -48,9 +49,25 @@ public class Transaction implements Serializable {
     private Double balance;
 
     @Column(name = "event_date")
+    @Builder.Default
     private LocalDate eventDate = LocalDate.now();
 
     @Column(name = "due_date")
     private LocalDate dueDate;
 
+    public TransactionDTO toTransactionDTO() {
+        return TransactionDTO.builder()
+                             .id(getId())
+                             .accountId(getAccount().getId())
+                             .operationTypeId(getOperationType().getId())
+                             .amount(getAmount())
+                             .balance(getBalance())
+                             .eventDate(getEventDate())
+                             .dueDate(getDueDate())
+                             .build();
+    }
+
+    public boolean isPayment() {
+        return getOperationType().getId() == OperationType.PAGAMENTO;
+    }
 }

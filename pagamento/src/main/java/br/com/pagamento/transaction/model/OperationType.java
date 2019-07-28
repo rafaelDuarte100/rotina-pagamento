@@ -25,10 +25,10 @@ public class OperationType implements Serializable {
 
     private static final long serialVersionUID = 8614351452967790707L;
 
-    public static final int COMPRA_A_VISTA = 1;
-    public static final int COMPRA_PARCELADA = 2;
-    public static final int SAQUE = 3;
-    public static final int PAGAMENTO = 4;
+    public static final long COMPRA_A_VISTA = 1;
+    public static final long COMPRA_PARCELADA = 2;
+    public static final long SAQUE = 3;
+    public static final long PAGAMENTO = 4;
 
     @Id
     @EqualsAndHashCode.Include
