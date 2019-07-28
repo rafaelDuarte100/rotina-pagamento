@@ -1,11 +1,14 @@
 package br.com.pagamento.account.controller;
 
+import static br.com.pagamento.account.dto.AccountDTO.toAccountDTO;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.pagamento.account.dto.AccountDTO;
-import static br.com.pagamento.account.dto.AccountDTO.toAccountDTO;
 import br.com.pagamento.account.model.Account;
 import br.com.pagamento.account.service.AccountService;
 import lombok.AllArgsConstructor;
@@ -45,5 +47,13 @@ public class AccountController {
         return accountService.create(Account.toAccount(newAccountDTO))
                              .map(account -> ResponseEntity.status(HttpStatus.CREATED).body(toAccountDTO(account)))
                              .orElse(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+    }
+
+    @PatchMapping("/limits/{account_id}")
+    public void update(@PathVariable(name = "account_id", required = true) Long id,
+                                             @RequestBody AccountDTO accountDTO) {
+        Account account = Account.toAccount(accountDTO);
+        account.setId(id);
+        accountService.update(account);
     }
 }

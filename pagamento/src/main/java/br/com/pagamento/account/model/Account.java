@@ -48,5 +48,23 @@ public class Account implements Serializable {
 													  .map(availableWithdrawalLimit -> availableWithdrawalLimit.getAmount())
 													  .orElse(null))
                         .build();
-    }
+	}
+	
+	public void addAvailableCreditLimit(Double availableCreditLimit) {
+		this.availableCreditLimit = sumAvailableLimit(this.availableCreditLimit, availableCreditLimit);
+	}
+
+	public void addAvailableWithdrawalLimit(Double availableWithdrawalLimit) {
+		this.availableWithdrawalLimit = sumAvailableLimit(this.availableWithdrawalLimit, availableWithdrawalLimit);
+	}
+
+	private Double sumAvailableLimit(Double availableWithdrawalLimit, Double availableWithdrawalLimitAdd) {
+		if (availableWithdrawalLimit == null) {
+			return availableWithdrawalLimitAdd;
+		}
+		if (availableWithdrawalLimitAdd != null) {
+			return Math.ceil((availableWithdrawalLimit + availableWithdrawalLimitAdd) * 100)/100;
+		}
+		return availableWithdrawalLimit;
+	}
 }
