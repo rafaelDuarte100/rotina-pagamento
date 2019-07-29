@@ -33,6 +33,11 @@ public class TransactionValidator {
         validateAvailableCreditLimit(account, transaction);
     }
 
+    public void validateTransactionWithdraw(Transaction transaction, Account account) {
+        validateWithdrawalLimitNonNull(account);
+        validateAvailableWithdrawalLimit(account, transaction);
+    }
+
     private void validateIfAccountWasEntered(Transaction transaction) {
         if (transaction.getAccount().getId() == null)
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.nao.informada"));
@@ -61,7 +66,7 @@ public class TransactionValidator {
     }
 
     private void validateIfAmountLessThanZero(Transaction transaction) {
-        if (transaction.getAmount() < 0)
+        if (transaction.getAmount() <= 0)
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("transacao.montante.negativo"));
     }
 
@@ -70,8 +75,18 @@ public class TransactionValidator {
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.limite.credito.nao.cadastrado"));
     }
 
+    private void validateWithdrawalLimitNonNull(Account account) {
+        if (account.getAvailableWithdrawalLimit() == null)
+            throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.limite.saque.nao.cadastrado"));
+    }
+
     private void validateAvailableCreditLimit(Account account, Transaction transaction) {
         if (account.getAvailableCreditLimit() < transaction.getAmount())
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.limite.credito.insuficiente"));
+    }
+
+    private void validateAvailableWithdrawalLimit(Account account, Transaction transaction) {
+        if (account.getAvailableWithdrawalLimit() < transaction.getAmount())
+            throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.limite.saque.insuficiente"));
     }
 }

@@ -1,11 +1,10 @@
 package br.com.pagamento.transaction.services;
 
-import java.util.Optional;
-
+import br.com.pagamento.transaction.model.OperationCategory;
 import br.com.pagamento.transaction.model.Transaction;
 
 public interface TransactionOperation {
 
-    public Optional<Transaction> insertTransaction(Transaction transaction);
-    public Long getOperationType();
+    public Transaction populeTransaction(Transaction transaction);
+    public OperationCategory getOperationCategory();
 }

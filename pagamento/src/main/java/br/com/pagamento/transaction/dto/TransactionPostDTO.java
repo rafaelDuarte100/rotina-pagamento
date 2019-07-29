@@ -38,4 +38,16 @@ public class TransactionPostDTO implements Serializable  {
                           .balance(amount)
                           .build();
     }
+
+    public Transaction toPayment() {
+        return Transaction.builder()
+                          .id(0L)
+                          .account(Account.builder().id(accountId).build())
+                          .operationType(OperationType.builder()
+                                                      .id(OperationType.PAGAMENTO)
+                                                      .build())
+                          .amount(amount)
+                          .balance(amount)
+                          .build();
+    }
 }

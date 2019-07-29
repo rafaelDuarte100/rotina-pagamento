@@ -6,17 +6,19 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
+import br.com.pagamento.transaction.model.OperationCategory;
+
 @Component
 public class TransactionOperationFactory {
 
-    private Map<Long, TransactionOperation> implementationByOperationType;
+    private Map<OperationCategory, TransactionOperation> implementationByOperationCategory;
 
     public TransactionOperationFactory(List<TransactionOperation> implementations) {
-        implementationByOperationType = new HashMap<>();
-        implementations.forEach(implementation -> implementationByOperationType.put(implementation.getOperationType(), implementation));
+        implementationByOperationCategory = new HashMap<>();
+        implementations.forEach(implementation -> implementationByOperationCategory.put(implementation.getOperationCategory(), implementation));
     }
 
-    public TransactionOperation getTransactionOperation(Long operationType) {
-        return implementationByOperationType.get(operationType);
+    public TransactionOperation getTransactionOperation(OperationCategory operationCategory) {
+        return implementationByOperationCategory.get(operationCategory);
     }
 }

@@ -28,7 +28,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Optional<Account> create(Account account) {
-        return Optional.of(accountRepository.save(account));
+        return Optional.ofNullable(accountRepository.save(account));
     }
 
     @Override

@@ -66,8 +66,4 @@ public class Transaction implements Serializable {
                              .dueDate(getDueDate())
                              .build();
     }
-
-    public boolean isPayment() {
-        return getOperationType().getId() == OperationType.PAGAMENTO;
-    }
 }

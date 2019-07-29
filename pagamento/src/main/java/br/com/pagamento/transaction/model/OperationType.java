@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,4 +41,15 @@ public class OperationType implements Serializable {
 
     @Column(name="charge_order")
     private int chargeOrder;
+
+    @Transient
+    public OperationCategory getCategory() {
+        if (getId() == PAGAMENTO)
+            return OperationCategory.PAGAMENTO;
+        
+            if (getId() == SAQUE)
+            return OperationCategory.SAQUE;
+
+        return OperationCategory.COMPRA;
+    }
 }
