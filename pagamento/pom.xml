@@ -6,8 +6,9 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.1.6.RELEASE</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
+	
 	<groupId>br.com</groupId>
 	<artifactId>pagamento</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -20,6 +21,7 @@
 		<start-class>br.com.pagamento.RotinaDePagamentoApplication</start-class>
 		<docker.image.name>rotina-pagamento</docker.image.name>
 		<docker.image.tag>latest</docker.image.tag>
+		<maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
 	</properties>
 
 	<dependencies>
