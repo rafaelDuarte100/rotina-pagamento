@@ -1,7 +1,7 @@
 package br.com.pagamento.service.account;
 
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.lenient;
 
 import java.util.Optional;
 
@@ -31,12 +31,12 @@ public class AccountServiceImplTests {
 
     @Before
     public void init() {
-        when(sourceMessage.getMessage(anyString())).thenReturn("Mensagem de erro retornada!");
+    	lenient().when(sourceMessage.getMessage(anyString())).thenReturn("Mensagem de erro retornada!");
     }
 
     @Test(expected = ResourceException.class)
     public void TryUpdateNonExistentAccount() {
-        when(accountRepository.findById(1L)).thenReturn(Optional.empty());
+    	lenient().when(accountRepository.findById(1L)).thenReturn(Optional.empty());
         accountService.update(Account.builder().id(1L).build());
     }    
 }
