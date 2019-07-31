@@ -4,7 +4,7 @@ VOLUME /tmp
 
 COPY target/pagamento*.jar app.jar
 
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=docker", "-jar", "/app.jar"]
 
 EXPOSE 8080
 
