@@ -1,5 +1,7 @@
 package br.com.pagamento.validator.transaction;
 
+import java.util.Optional;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -28,14 +30,24 @@ public class TransactionValidator {
         validateIfAmountLessThanZero(transaction);
     }
 
-    public void validateTransactionCashPurchase(Transaction transaction, Account account) {
+    public void validateTransactionCashPurchase(Transaction transaction, Account account, Transaction positiveBalancePayment) {
         validateCreditLimitNonNull(account);
-        validateAvailableCreditLimit(account, transaction);
+        validateAvailableCreditLimit(account, transaction, positiveBalancePayment);
     }
 
     public void validateTransactionWithdraw(Transaction transaction, Account account) {
         validateWithdrawalLimitNonNull(account);
         validateAvailableWithdrawalLimit(account, transaction);
+    }
+
+    public void validateTransactionPayment(Transaction transaction, Account account) {
+        validateIfThereIsOutstandingBalance(transaction);
+    }
+
+    private void validateIfThereIsOutstandingBalance(Transaction transaction) {
+        if (!accountRepository.thereIsOutstandingBalance(transaction.getAccount().getId())) {
+            throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.sem.saldo.devedor", transaction.getAccount().getId()));
+        }
     }
 
     private void validateIfAccountWasEntered(Transaction transaction) {
@@ -80,8 +92,12 @@ public class TransactionValidator {
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.limite.saque.nao.cadastrado"));
     }
 
-    private void validateAvailableCreditLimit(Account account, Transaction transaction) {
-        if (account.getAvailableCreditLimit() < transaction.getAmount())
+    private void validateAvailableCreditLimit(Account account, Transaction transaction, Transaction positiveBalancePayment) {
+        Double positiveBalance = Optional.ofNullable(positiveBalancePayment)
+                                         .map(item -> item.getBalance())
+                                         .orElse(0D);
+
+        if ((account.getAvailableCreditLimit() + positiveBalance) < transaction.getAmount())
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.limite.credito.insuficiente"));
     }
 

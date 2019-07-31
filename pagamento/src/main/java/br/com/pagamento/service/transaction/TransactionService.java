@@ -11,7 +11,7 @@ public interface TransactionService {
 
     public Optional<Transaction> findById(Long id);
     
-    public Optional<Transaction> create(Transaction account);
+    public Optional<Transaction> create(Transaction transaction);
 
-    public Optional<List<Transaction>> create(List<Transaction> account);
+    public List<Transaction> createPayments(List<Transaction> transactions);
 }

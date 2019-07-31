@@ -31,9 +31,9 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Account create(Account account) {
+    public Optional<Account> create(Account account) {
     	accountValidator.validateAccountCreation(account);
-        return accountRepository.save(account);
+        return Optional.of(accountRepository.save(account));
     }
     
 	@Override
@@ -43,10 +43,15 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account update(Account account) {
+        return accountRepository.save(account);
+    }
+
+    @Override
+    public Optional<Account> updateLimits(Account account) {
     	return findById(account.getId())
                 .map(accountDB -> { accountUtil.updateAccountLimits(accountDB, account.getAvailableCreditLimit(), account.getAvailableWithdrawalLimit());
                                     accountValidator.validateAccountUpdate(accountDB);
-					    			return accountRepository.save(accountDB); })
+					    			return Optional.of(accountRepository.save(accountDB)); })
 		    	.orElseThrow(() -> new ResourceException(HttpStatus.NOT_FOUND, messageSource.getMessage("conta.nao.existente", account.getId(), null)));
     }
 }

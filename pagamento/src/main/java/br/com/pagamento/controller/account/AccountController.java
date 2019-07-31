@@ -20,13 +20,13 @@ import br.com.pagamento.service.account.AccountService;
 import lombok.AllArgsConstructor;
 
 @RestController
-@RequestMapping("/accounts")
+@RequestMapping("/accounts/limits")
 @AllArgsConstructor
 public class AccountController {
 
     private final AccountService accountService;
 
-    @GetMapping("/limits")
+    @GetMapping
     public List<AccountDTO> findAll() {
         return accountService.findAll()
                              .stream()
@@ -34,26 +34,27 @@ public class AccountController {
                              .collect(Collectors.toList());
     }
 
-    @GetMapping("/limits/{account_id}")
+    @GetMapping("/{account_id}")
     public ResponseEntity<AccountDTO> findById(@PathVariable(name = "account_id", required = true) Long id) {
         return accountService.findById(id)
                              .map(account -> ResponseEntity.ok(convertToDTO(account)))
                              .orElse(ResponseEntity.notFound().build());
     }
     
-    @PostMapping("/limits")
+    @PostMapping
     public ResponseEntity<AccountDTO> create(@RequestBody(required = true) AccountDTO accountDTO) {
-    	Account account = convertToAccount(accountDTO);
-    	account = accountService.create(account);
-    	return ResponseEntity.ok(convertToDTO(account));
+        return accountService.create(convertToAccount(accountDTO))
+                             .map(account -> ResponseEntity.ok(convertToDTO(account)))
+                             .get();
     }
 
-    @PatchMapping("/limits/{account_id}")
+    @PatchMapping("/{account_id}")
     public ResponseEntity<AccountDTO> update(@PathVariable(name = "account_id", required = true) Long id, @RequestBody AccountDTO accountDTO) {
         Account account = convertToAccount(accountDTO);
         account.setId(id);
-        account = accountService.update(account);
-        return ResponseEntity.ok(convertToDTO(account));
+        return accountService.updateLimits(account)
+                             .map(item -> ResponseEntity.ok(convertToDTO(item)))
+                             .get();
     }
     
     public AccountDTO convertToDTO(Account account) {

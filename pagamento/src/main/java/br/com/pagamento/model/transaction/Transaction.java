@@ -12,7 +12,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import br.com.pagamento.dto.transaction.TransactionDTO;
 import br.com.pagamento.model.account.Account;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -54,16 +53,5 @@ public class Transaction implements Serializable {
 
     @Column(name = "due_date")
     private LocalDate dueDate;
-
-    public TransactionDTO toTransactionDTO() {
-        return TransactionDTO.builder()
-                             .id(getId())
-                             .accountId(getAccount().getId())
-                             .operationTypeId(getOperationType().getId())
-                             .amount(getAmount())
-                             .balance(getBalance())
-                             .eventDate(getEventDate())
-                             .dueDate(getDueDate())
-                             .build();
-    }
+    
 }

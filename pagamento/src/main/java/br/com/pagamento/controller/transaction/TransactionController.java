@@ -3,7 +3,6 @@ package br.com.pagamento.controller.transaction;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.pagamento.dto.transaction.TransactionDTO;
 import br.com.pagamento.dto.transaction.TransactionPostDTO;
+import br.com.pagamento.model.account.Account;
+import br.com.pagamento.model.transaction.OperationType;
 import br.com.pagamento.model.transaction.Transaction;
 import br.com.pagamento.service.transaction.TransactionService;
 import lombok.AllArgsConstructor;
@@ -27,36 +28,70 @@ public class TransactionController {
     public List<TransactionDTO> findAll() {
         return transactionService.findAll()
                                  .stream()
-                                 .map(transaction -> transaction.toTransactionDTO())
+                                 .map(transaction -> convertToDTO(transaction))
                                  .collect(Collectors.toList());
     }
 
     @GetMapping("/transactions/{transaction_id}")
     public ResponseEntity<TransactionDTO> findById(@PathVariable(name = "transaction_id", required = true) Long id) {
         return transactionService.findById(id)
-                                 .map(transaction -> ResponseEntity.ok(transaction.toTransactionDTO()))
+                                 .map(transaction -> ResponseEntity.ok(convertToDTO(transaction)))
                                  .orElse(ResponseEntity.notFound().build());
     }
     
     @PostMapping("/transactions")
     public ResponseEntity<TransactionDTO> create(@RequestBody(required = true) TransactionPostDTO transactionPostDTO) {
-        return transactionService.create(transactionPostDTO.toTransaction())
-                                 .map(transaction -> ResponseEntity.status(HttpStatus.CREATED).body(transaction.toTransactionDTO()))
-                                 .orElse(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+        return transactionService.create(convertToTransaction(transactionPostDTO))
+                                 .map(transaction -> ResponseEntity.ok(convertToDTO(transaction)))
+                                 .get();
     }
 
     @PostMapping("/payments")
     public ResponseEntity<List<TransactionDTO>> createPayments(@RequestBody(required = true) List<TransactionPostDTO> payments) {
         List<Transaction> transactions = payments.stream()
-                                                 .map(dto -> dto.toPayment())
+                                                 .map(dto -> convertToPayment(dto))
                                                  .collect(Collectors.toList());
 
         List<TransactionDTO> dtos =  transactionService
-                                        .create(transactions)
-                                        .get().stream()
-                                        .map(transaction -> transaction.toTransactionDTO())
+                                        .createPayments(transactions)
+                                        .stream()
+                                        .map(transaction -> convertToDTO(transaction))
                                         .collect(Collectors.toList());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(dtos);
+        return ResponseEntity.ok(dtos);
+    }
+
+    public TransactionDTO convertToDTO(Transaction transaction) {
+        return TransactionDTO.builder()
+                             .id(transaction.getId())
+                             .accountId(transaction.getAccount().getId())
+                             .operationTypeId(transaction.getOperationType().getId())
+                             .amount(transaction.getAmount())
+                             .balance(transaction.getBalance())
+                             .eventDate(transaction.getEventDate())
+                             .dueDate(transaction.getDueDate())
+                             .build();
+    }
+
+    public Transaction convertToPayment(TransactionPostDTO transactionPostDTO) {
+        return convertToTransaction(transactionPostDTO, OperationType.PAGAMENTO);
+    }
+
+    public Transaction convertToTransaction(TransactionPostDTO transactionPostDTO) {
+        return convertToTransaction(transactionPostDTO, transactionPostDTO.getOperationTypeId());
+    }
+
+    public Transaction convertToTransaction(TransactionPostDTO transactionPostDTO, Long operationTypeId) {
+        return Transaction.builder()
+                          .id(0L)
+                          .account(Account.builder()
+                                          .id(transactionPostDTO.getAccountId())
+                                          .build())
+                          .operationType(OperationType.builder()
+                                                      .id(operationTypeId)
+                                                      .build())
+                          .amount(transactionPostDTO.getAmount())
+                          .balance(transactionPostDTO.getAmount())
+                          .build();
     }
 }

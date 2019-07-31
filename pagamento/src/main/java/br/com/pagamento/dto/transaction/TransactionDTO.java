@@ -5,9 +5,6 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import br.com.pagamento.model.account.Account;
-import br.com.pagamento.model.transaction.OperationType;
-import br.com.pagamento.model.transaction.Transaction;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -41,15 +38,4 @@ public class TransactionDTO implements Serializable  {
     @JsonProperty("due_date")
     private LocalDate dueDate;
 
-    public Transaction toTransaction() {
-        return Transaction.builder()
-                          .id(id)
-                          .account(Account.builder().id(accountId).build())
-                          .operationType(OperationType.builder().id(operationTypeId).build())
-                          .amount(amount)
-                          .balance(balance)
-                          .eventDate(eventDate)
-                          .dueDate(dueDate)
-                          .build();
-    }
 }
