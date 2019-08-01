@@ -30,7 +30,7 @@ public class TransactionOperationPayment extends AbstractTransactionOperation {
 
     protected void populePayment(Transaction paymentTransaction) {
         Account account = paymentTransaction.getAccount();
-        validator.validateTransactionPayment(paymentTransaction, account);
+        validate(paymentTransaction, account, null);
 
         Double paymentBalance = paymentTransaction.getAmount();
         List<Transaction> transactionsToDownPayment = transactionRepository.findTransactionsToDownPayment(account.getId());
@@ -71,4 +71,9 @@ public class TransactionOperationPayment extends AbstractTransactionOperation {
 
     @Override
     protected void downAvailableLimitAccount(Transaction transaction, Account account) {}
+
+	@Override
+	protected void validate(Transaction transaction, Account account, Transaction positiveBalancePayment) {
+		validator.validateTransactionPayment(transaction, account);		
+	}
 }

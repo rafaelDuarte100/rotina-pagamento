@@ -27,6 +27,16 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     protected ResponseEntity<ErrorMessage> handleAccountNotFoundException(AccountNotFoundException e) {
         return generateResponse(e, e.getIdAccount());
     }
+    
+    @ExceptionHandler(value = { Exception.class })
+    private ResponseEntity<ErrorMessage> handleException(Exception e) {
+        ErrorMessage errorMessage = ErrorMessage.builder()
+                                                .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                                                .codeDescription(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                                                .message(messageSource.getMessage("erro.nao.esperado"))
+                                                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+    }
 
     private ResponseEntity<ErrorMessage> generateResponse(ResourceException e, Object... params) {
         return ResponseEntity.status(e.getHttpStatus()).body(getErrorMessage(e, params));
@@ -38,15 +48,5 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                            .codeDescription(e.getHttpStatus().getReasonPhrase())
                            .message(messageSource.getMessage(e.getMessageKey(), params))
                            .build();
-    }
-
-    @ExceptionHandler(value = { Exception.class })
-    private ResponseEntity<ErrorMessage> handleException(Exception e) {
-        ErrorMessage errorMessage = ErrorMessage.builder()
-                                                .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                                                .codeDescription(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                                                .message(messageSource.getMessage("erro.nao.esperado"))
-                                                .build();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
     }
 }

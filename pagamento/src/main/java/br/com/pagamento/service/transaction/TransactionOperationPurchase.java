@@ -28,4 +28,9 @@ public class TransactionOperationPurchase extends AbstractTransactionOperation {
     public OperationCategory getOperationCategory() {
         return OperationCategory.COMPRA;
     }
+
+	@Override
+	protected void validate(Transaction transaction, Account account, Transaction positiveBalancePayment) {
+		validator.validateTransactionCashPurchase(transaction, account, positiveBalancePayment);
+	}
 }

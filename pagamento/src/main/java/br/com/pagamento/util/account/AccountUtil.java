@@ -1,5 +1,8 @@
 package br.com.pagamento.util.account;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import java.text.DecimalFormat;
 
 import org.springframework.stereotype.Component;
@@ -24,10 +27,10 @@ public class AccountUtil {
 	}
 	
 	public Double sumAvailableLimit(Double availableLimitCurrent, Double availableLimitAdd) {
-		if (availableLimitCurrent == null) {
+		if (isNull(availableLimitCurrent)) {
 			return availableLimitAdd;
 		}
-		if (availableLimitAdd != null) {
+		if (nonNull(availableLimitAdd)) {
 			return truncateValue(availableLimitCurrent + availableLimitAdd);
 		}
 		return availableLimitCurrent;

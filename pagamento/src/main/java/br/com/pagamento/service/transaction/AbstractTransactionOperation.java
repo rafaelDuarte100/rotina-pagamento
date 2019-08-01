@@ -29,7 +29,7 @@ public abstract class AbstractTransactionOperation implements TransactionOperati
         Transaction transaction = transactions.get(0);
         Account account = transaction.getAccount();
         Transaction creditPaymentTransaction = findCreditPaymentTransaction(account);
-        validator.validateTransactionCashPurchase(transaction, account, creditPaymentTransaction);
+        validate(transaction, account, creditPaymentTransaction);
         
         Double creditBalance = null;
         if (creditPaymentTransaction != null) {
@@ -66,6 +66,8 @@ public abstract class AbstractTransactionOperation implements TransactionOperati
     private Double truncateValue(Double value) {
 		return Double.valueOf(new DecimalFormat("#.##").format(value).replace(",", "."));
 	}
+    
+    protected abstract void validate(Transaction transaction, Account account, Transaction positiveBalancePayment);
 
     protected abstract void downAvailableLimitAccount(Transaction transaction, Account account);
 

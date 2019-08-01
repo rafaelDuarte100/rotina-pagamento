@@ -1,6 +1,6 @@
 package br.com.pagamento.validator.account;
 
-import java.util.Objects;
+import static java.util.Objects.nonNull;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -28,8 +28,8 @@ public class AccountValidator {
 		Double availableCreditLimit = account.getAvailableCreditLimit();
 		Double availableWithdrawal = account.getAvailableWithdrawalLimit();
 		
-		if ((Objects.nonNull(availableCreditLimit) && availableCreditLimit < 0)
-				|| Objects.nonNull(availableWithdrawal) && availableWithdrawal < 0) {
+		if ((nonNull(availableCreditLimit) && availableCreditLimit < 0)
+				|| nonNull(availableWithdrawal) && availableWithdrawal < 0) {
 			throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage(message));
 		}
 		return account;

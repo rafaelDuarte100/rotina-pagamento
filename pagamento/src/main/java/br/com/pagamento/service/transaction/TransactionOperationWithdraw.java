@@ -28,4 +28,9 @@ public class TransactionOperationWithdraw extends AbstractTransactionOperation {
     public OperationCategory getOperationCategory() {
 		return OperationCategory.SAQUE;
 	}
+
+	@Override
+	protected void validate(Transaction transaction, Account account, Transaction positiveBalancePayment) {
+		validator.validateTransactionWithdraw(transaction, account, positiveBalancePayment);
+	}
 }

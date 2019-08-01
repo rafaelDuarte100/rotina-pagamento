@@ -2,6 +2,7 @@ package br.com.pagamento.service.account;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,12 +43,12 @@ public class AccountServiceImplTests {
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        doReturn("Mensagem de erro retornada!").when(sourceMessage).getMessage(any());
+        lenient().doReturn("Mensagem de erro retornada!").when(sourceMessage).getMessage(any());
     }
 
     @Test(expected = AccountNotFoundException.class)
     public void tryUpdateNonExistentAccount() {
-        doReturn(Optional.empty()).when(accountRepository).findById(any());
+    	lenient().doReturn(Optional.empty()).when(accountRepository).findById(any());
 
         accountService.updateLimits(Account.builder().id(1L).build());
 
@@ -57,7 +58,7 @@ public class AccountServiceImplTests {
 
     @Test(expected = AccountNotFoundException.class)
     public void testFindByIdWithAccountEmpty() {
-        doReturn(Optional.empty()).when(accountRepository).findById(any());
+    	lenient().doReturn(Optional.empty()).when(accountRepository).findById(any());
 
         accountService.findById(-1);
     }
@@ -65,7 +66,7 @@ public class AccountServiceImplTests {
     @Test(expected = ResourceException.class)
     public void testUpdateLimitsWithCreditLimitLessThanZero() {
         Account account = Account.builder().id(1L).availableCreditLimit(-1D).build();
-        doReturn(Optional.of(account)).when(accountRepository).findById(any());
+        lenient().doReturn(Optional.of(account)).when(accountRepository).findById(any());
 
         accountService.updateLimits(account);
 
@@ -76,7 +77,7 @@ public class AccountServiceImplTests {
     @Test(expected = ResourceException.class)
     public void testUpdateLimitsWithWithdrawalLessThanZero() {
         Account account = Account.builder().id(1L).availableWithdrawalLimit(-1D).build();
-        doReturn(Optional.of(account)).when(accountRepository).findById(any());
+        lenient().doReturn(Optional.of(account)).when(accountRepository).findById(any());
 
         accountService.updateLimits(account);
 

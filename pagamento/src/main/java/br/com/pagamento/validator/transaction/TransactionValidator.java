@@ -36,64 +36,64 @@ public class TransactionValidator {
         validateAvailableCreditLimit(account, transaction, positiveBalancePayment);
     }
 
-    public void validateTransactionWithdraw(Transaction transaction, Account account) {
+    public void validateTransactionWithdraw(Transaction transaction, Account account, Transaction positiveBalancePayment) {
         validateWithdrawalLimitNonNull(account);
-        validateAvailableWithdrawalLimit(account, transaction);
+        validateAvailableWithdrawalLimit(account, transaction, positiveBalancePayment);
     }
 
     public void validateTransactionPayment(Transaction transaction, Account account) {
         validateIfThereIsOutstandingBalance(transaction);
     }
 
-    private void validateIfThereIsOutstandingBalance(Transaction transaction) {
+    public void validateIfThereIsOutstandingBalance(Transaction transaction) {
         if (!accountRepository.thereIsOutstandingBalance(transaction.getAccount().getId())) {
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.sem.saldo.devedor", transaction.getAccount().getId()));
         }
     }
 
-    private void validateIfAccountWasEntered(Transaction transaction) {
+    public void validateIfAccountWasEntered(Transaction transaction) {
         if (Objects.isNull(transaction.getAccount().getId()))
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.nao.informada"));
     }
 
-    private void validateIfAccountExists(Transaction transaction) {
+    public void validateIfAccountExists(Transaction transaction) {
         Long id = transaction.getAccount().getId();
         if (!accountRepository.existsById(id))
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.nao.existente", id));
     }
 
-    private void validateIfOperationTypeWasEntered(Transaction transaction) {
+    public void validateIfOperationTypeWasEntered(Transaction transaction) {
         if (transaction.getOperationType().getId() == null)
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("tipo.operacao.nao.informado"));
     }
 
-    private void validateIfOperationTypeExists(Transaction transaction) {
+    public void validateIfOperationTypeExists(Transaction transaction) {
         Long id = transaction.getOperationType().getId();
         if (!operationTypeRepository.existsById(id))
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("tipo.operacao.nao.existente", id));
     }
 
-    private void validateIfAmountWasEntered(Transaction transaction) {
+    public void validateIfAmountWasEntered(Transaction transaction) {
         if (transaction.getAmount() == null)
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("montante.nao.informado"));
     }
 
-    private void validateIfAmountLessThanZero(Transaction transaction) {
+    public void validateIfAmountLessThanZero(Transaction transaction) {
         if (transaction.getAmount() <= 0)
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("transacao.montante.negativo"));
     }
 
-    private void validateCreditLimitNonNull(Account account) {
+    public void validateCreditLimitNonNull(Account account) {
         if (account.getAvailableCreditLimit() == null)
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.limite.credito.nao.cadastrado"));
     }
 
-    private void validateWithdrawalLimitNonNull(Account account) {
+    public void validateWithdrawalLimitNonNull(Account account) {
         if (account.getAvailableWithdrawalLimit() == null)
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.limite.saque.nao.cadastrado"));
     }
 
-    private void validateAvailableCreditLimit(Account account, Transaction transaction, Transaction positiveBalancePayment) {
+    public void validateAvailableCreditLimit(Account account, Transaction transaction, Transaction positiveBalancePayment) {
         Double positiveBalance = Optional.ofNullable(positiveBalancePayment)
                                          .map(item -> item.getBalance())
                                          .orElse(0D);
@@ -102,8 +102,12 @@ public class TransactionValidator {
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.limite.credito.insuficiente"));
     }
 
-    private void validateAvailableWithdrawalLimit(Account account, Transaction transaction) {
-        if (account.getAvailableWithdrawalLimit() < transaction.getAmount())
+    public void validateAvailableWithdrawalLimit(Account account, Transaction transaction, Transaction positiveBalancePayment) {
+    	Double positiveBalance = Optional.ofNullable(positiveBalancePayment)
+						                .map(item -> item.getBalance())
+						                .orElse(0D);
+    	
+        if ((account.getAvailableWithdrawalLimit() + positiveBalance) < transaction.getAmount())
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.limite.saque.insuficiente"));
     }
 }
