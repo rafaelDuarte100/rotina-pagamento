@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,13 +19,13 @@ import br.com.pagamento.service.account.AccountService;
 import lombok.AllArgsConstructor;
 
 @RestController
-@RequestMapping("/accounts/limits")
+@RequestMapping("/accounts")
 @AllArgsConstructor
 public class AccountController {
 
     private final AccountService accountService;
 
-    @GetMapping
+    @GetMapping("/limits")
     public List<AccountDTO> findAll() {
         return accountService.findAll()
                              .stream()
@@ -34,27 +33,21 @@ public class AccountController {
                              .collect(Collectors.toList());
     }
 
-    @GetMapping("/{account_id}")
-    public ResponseEntity<AccountDTO> findById(@PathVariable(name = "account_id", required = true) Long id) {
-        return accountService.findById(id)
-                             .map(account -> ResponseEntity.ok(convertToDTO(account)))
-                             .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/{id}")
+    public AccountDTO findById(@PathVariable(name = "id", required = true) Long id) {
+        return convertToDTO(accountService.findById(id));
     }
     
     @PostMapping
-    public ResponseEntity<AccountDTO> create(@RequestBody(required = true) AccountDTO accountDTO) {
-        return accountService.create(convertToAccount(accountDTO))
-                             .map(account -> ResponseEntity.ok(convertToDTO(account)))
-                             .get();
+    public AccountDTO create(@RequestBody(required = true) AccountDTO accountDTO) {
+        return convertToDTO(accountService.create(convertToAccount(accountDTO)));
     }
 
-    @PatchMapping("/{account_id}")
-    public ResponseEntity<AccountDTO> update(@PathVariable(name = "account_id", required = true) Long id, @RequestBody AccountDTO accountDTO) {
+    @PatchMapping("/{id}")
+    public AccountDTO update(@PathVariable(name = "id", required = true) Long id, @RequestBody AccountDTO accountDTO) {
         Account account = convertToAccount(accountDTO);
         account.setId(id);
-        return accountService.updateLimits(account)
-                             .map(item -> ResponseEntity.ok(convertToDTO(item)))
-                             .get();
+        return convertToDTO(accountService.updateLimits(account));
     }
     
     public AccountDTO convertToDTO(Account account) {

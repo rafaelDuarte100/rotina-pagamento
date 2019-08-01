@@ -9,9 +9,10 @@ import br.com.pagamento.model.account.Account;
 @Component
 public class AccountUtil {
 
-	public void updateAccountLimits(Account account, Double creditLimit, Double WithdrawalLimit) {
-		account.setAvailableCreditLimit(addAccountCreditLimit(account, creditLimit));
-		account.setAvailableWithdrawalLimit(addAccountWithdrawalLimit(account, WithdrawalLimit));
+	public Account updateAccountLimits(Account accountDB, Account newAccount) {
+		accountDB.setAvailableCreditLimit(addAccountCreditLimit(accountDB, newAccount.getAvailableCreditLimit()));
+		accountDB.setAvailableWithdrawalLimit(addAccountWithdrawalLimit(accountDB, newAccount.getAvailableWithdrawalLimit()));
+		return accountDB;
 	}
 	
 	public Double addAccountCreditLimit(Account account, Double creditLimit) {

@@ -1,6 +1,6 @@
 package br.com.pagamento.service.transaction;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -22,14 +22,13 @@ public class TransactionOperationPayment extends AbstractTransactionOperation {
     }
 
     @Override
-    public List<Transaction> populeTransactions(Transaction... transactions) {
-        Arrays.asList(transactions)
-              .stream()
-              .forEach(paymentTransaction -> populePayment(paymentTransaction));
-        return resultado;
+    public List<Transaction> populeTransactions(List<Transaction> transactions) {
+        transactionsGenerated = new ArrayList<>();
+        transactions.forEach(paymentTransaction -> populePayment(paymentTransaction));
+        return getTransactionsGenerated();
     } 
 
-    public void populePayment(Transaction paymentTransaction) {
+    protected void populePayment(Transaction paymentTransaction) {
         Account account = paymentTransaction.getAccount();
         validator.validateTransactionPayment(paymentTransaction, account);
 
@@ -41,22 +40,22 @@ public class TransactionOperationPayment extends AbstractTransactionOperation {
             transactionRebate = calculateTransactionRebate(transactionToDownPayment, paymentBalance);
             returnAvailableAccountLimite(account, transactionToDownPayment, transactionRebate);
             transactionToDownPayment.setBalance(transactionToDownPayment.getBalance() + transactionRebate);
-            resultado.add(transactionToDownPayment);
+            transactionsGenerated.add(transactionToDownPayment);
             paymentBalance -= transactionRebate;
 
             if (paymentBalance == 0) 
                 break;
         }
         paymentTransaction.setBalance(paymentBalance);
-        resultado.add(paymentTransaction);
+        transactionsGenerated.add(paymentTransaction);
     }
 
-    public Double calculateTransactionRebate(Transaction transactionToDownPayment, Double paymentBalance) {
+    private Double calculateTransactionRebate(Transaction transactionToDownPayment, Double paymentBalance) {
         Double transactionBalance = transactionToDownPayment.getBalance();
         return Math.min(Math.abs(transactionBalance), paymentBalance);
     }
 
-    public void returnAvailableAccountLimite(Account account, Transaction transactionToDownPayment, Double returnedValue) {
+    private void returnAvailableAccountLimite(Account account, Transaction transactionToDownPayment, Double returnedValue) {
         if (transactionToDownPayment.getOperationType().getCategory().equals(OperationCategory.SAQUE)) {
             account.setAvailableWithdrawalLimit(accountUtil.addAccountWithdrawalLimit(account, returnedValue));
         }
@@ -71,5 +70,5 @@ public class TransactionOperationPayment extends AbstractTransactionOperation {
 	}
 
     @Override
-    public void downAvailableLimitAccount(Transaction transaction, Account account) {}
+    protected void downAvailableLimitAccount(Transaction transaction, Account account) {}
 }

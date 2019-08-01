@@ -7,6 +7,6 @@ import br.com.pagamento.model.transaction.Transaction;
 
 public interface TransactionOperation {
 
-    public List<Transaction> populeTransactions(Transaction... transactions);
+    public List<Transaction> populeTransactions(List<Transaction> transactions);
     public OperationCategory getOperationCategory();
 }

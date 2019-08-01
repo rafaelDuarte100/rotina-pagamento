@@ -1,8 +1,8 @@
 package br.com.pagamento.service.transaction;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import static java.util.stream.Collectors.toMap;
 
 import org.springframework.stereotype.Component;
 
@@ -14,8 +14,8 @@ public class TransactionOperationFactory {
     private Map<OperationCategory, TransactionOperation> implementationByOperationCategory;
 
     public TransactionOperationFactory(List<TransactionOperation> implementations) {
-        implementationByOperationCategory = new HashMap<>();
-        implementations.forEach(implementation -> implementationByOperationCategory.put(implementation.getOperationCategory(), implementation));
+        implementationByOperationCategory = implementations.stream()
+                                                           .collect(toMap(TransactionOperation::getOperationCategory, impl -> impl));
     }
 
     public TransactionOperation getTransactionOperation(OperationCategory operationCategory) {

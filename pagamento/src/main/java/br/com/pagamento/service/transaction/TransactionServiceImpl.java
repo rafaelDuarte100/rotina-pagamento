@@ -2,11 +2,12 @@ package br.com.pagamento.service.transaction;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.pagamento.exception.TransactionNotFoundException;
 import br.com.pagamento.model.transaction.OperationCategory;
 import br.com.pagamento.model.transaction.Transaction;
 import br.com.pagamento.repository.transaction.TransactionRepository;
@@ -30,59 +31,50 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	@Override
-	public Optional<Transaction> findById(Long id) {
-		return transactionRepository.findById(id);
+	public Transaction findById(Long id) {
+		return transactionRepository.findById(id)
+									.orElseThrow(() -> new TransactionNotFoundException(id));
 	}
 
 	@Override
-	public Optional<Transaction> create(Transaction transaction) {
-		/*return Optional.of( transactionRepository.save(transaction));*/
-		
+	public List<Transaction> create(Transaction transaction) {
 		validate(Arrays.asList(transaction));
 		loadAccounts(Arrays.asList(transaction));
-		List<Transaction> populatedTransactions = populeTransactions(transaction.getOperationType().getCategory(), transaction);
-		updateAccounts(populatedTransactions);
-		saveTransactions(populatedTransactions);
-		return populatedTransactions.stream()
-									.filter(item -> item.getId() == transaction.getId())
-									.findFirst();
+		List<Transaction> populatedTransactions = populeTransactions(transaction.getOperationType().getCategory(), Arrays.asList(transaction));
+		updateAccounts(populatedTransactions);		
+		return saveTransactions(populatedTransactions);
 	}
 
 	@Override
 	public List<Transaction> createPayments(List<Transaction> transactions) {
 		validate(transactions);
 		loadAccounts(transactions);
-		List<Transaction> populatedTransactions = populeTransactions(OperationCategory.PAGAMENTO, transactions.toArray(new Transaction[0]));
+		List<Transaction> populatedTransactions = populeTransactions(OperationCategory.PAGAMENTO, transactions);
 		updateAccounts(populatedTransactions);
-		saveTransactions(populatedTransactions);
-		return populatedTransactions;
+		return saveTransactions(populatedTransactions);
 	}
 
 	private void validate(List<Transaction> transactions) {
-		transactions.stream()
-					.forEach(item -> validator.basicValidations(item));
+		transactions.forEach(validator::basicValidations);
 	}
 
 	private void loadAccounts(List<Transaction> transactions) {
-		transactions.stream()
-					.forEach(item -> item.setAccount(accountService.findById(item.getAccount().getId()).get()));
+		transactions.forEach(item -> item.setAccount(accountService.findById(item.getAccount().getId())));
 	}
 
-	private List<Transaction> populeTransactions(OperationCategory operationCategory, Transaction...transactions) {
+	private List<Transaction> populeTransactions(OperationCategory operationCategory, List<Transaction> transactions) {
 		return transactionOperationFactory.getTransactionOperation(operationCategory)
 										  .populeTransactions(transactions);
 	}
 
-	private void saveTransactions(List<Transaction> populatedTransactions) {
-		for (Transaction transaction : populatedTransactions) {
-			transactionRepository.save(transaction);
-		}
+	private List<Transaction> saveTransactions(List<Transaction> populatedTransactions) {
+		return transactionRepository.saveAll(populatedTransactions);
 	}
 
 	private void updateAccounts(List<Transaction> transactions) {
-		transactions.stream()
-					.map(item -> item.getAccount())
-					.distinct()
-					.forEach(account -> accountService.update(account));
+		accountService.updateAll(transactions.stream()
+											 .map(Transaction::getAccount)
+											 .distinct()
+											 .collect(Collectors.toList()));
 	}
 }

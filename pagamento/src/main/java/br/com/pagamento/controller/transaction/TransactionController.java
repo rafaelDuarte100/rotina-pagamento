@@ -32,18 +32,17 @@ public class TransactionController {
                                  .collect(Collectors.toList());
     }
 
-    @GetMapping("/transactions/{transaction_id}")
-    public ResponseEntity<TransactionDTO> findById(@PathVariable(name = "transaction_id", required = true) Long id) {
-        return transactionService.findById(id)
-                                 .map(transaction -> ResponseEntity.ok(convertToDTO(transaction)))
-                                 .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/transactions/{id}")
+    public TransactionDTO findById(@PathVariable(name = "id", required = true) Long id) {
+        return convertToDTO(transactionService.findById(id));
     }
     
     @PostMapping("/transactions")
-    public ResponseEntity<TransactionDTO> create(@RequestBody(required = true) TransactionPostDTO transactionPostDTO) {
-        return transactionService.create(convertToTransaction(transactionPostDTO))
-                                 .map(transaction -> ResponseEntity.ok(convertToDTO(transaction)))
-                                 .get();
+    public ResponseEntity<List<TransactionDTO>> create(@RequestBody(required = true) TransactionPostDTO transactionPostDTO) {
+        return ResponseEntity.ok(transactionService.create(convertToTransaction(transactionPostDTO))
+                                                   .stream()
+                                                   .map(transaction -> convertToDTO(transaction))
+                                                   .collect(Collectors.toList()));
     }
 
     @PostMapping("/payments")

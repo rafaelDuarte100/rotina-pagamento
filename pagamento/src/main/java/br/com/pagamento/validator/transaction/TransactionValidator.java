@@ -1,5 +1,6 @@
 package br.com.pagamento.validator.transaction;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -51,7 +52,7 @@ public class TransactionValidator {
     }
 
     private void validateIfAccountWasEntered(Transaction transaction) {
-        if (transaction.getAccount().getId() == null)
+        if (Objects.isNull(transaction.getAccount().getId()))
             throw new ResourceException(HttpStatus.NOT_ACCEPTABLE, messageSource.getMessage("conta.nao.informada"));
     }
 
