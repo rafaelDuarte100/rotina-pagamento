@@ -7,7 +7,7 @@ Projeto para simulação de rotinas de pagamentos de uma processadora de crédit
 ### Cadastro de Contas:
 
 ```
-POST http://localhost:8080/payment-routine/v1/accounts
+POST http://localhost:8080/rotina-pagamento/v1/accounts
 ```
 ```JSON
 {
@@ -37,7 +37,7 @@ Resposta:
 ### Atualização do Limite de Conta:
 
 ```
-PATCH http://localhost:8080/payment-routine/v1/accounts/{account_id}
+PATCH http://localhost:8080/rotina-pagamento/v1/accounts/{account_id}
 ```
 ```JSON
 {
@@ -68,7 +68,7 @@ Obs: Enviar um dos limites com um valor negativo, irá subtrair do limite da con
 ### Consulta de Limites de Contas Cadastradas:
 
 ```
-GET http://localhost:8080/payment-routine/v1/accounts/limits
+GET http://localhost:8080/rotina-pagamento/v1/accounts/limits
 ```
 Resposta:
 ```JSON
@@ -88,7 +88,7 @@ Resposta:
 ### Consulta de Transações
 
 ```
-GET http://localhost:8080/payment-routine/v1/transactions
+GET http://localhost:8080/rotina-pagamento/v1/transactions
 ```
 Resposta:
 
@@ -109,7 +109,7 @@ Resposta:
 ### Cadastro de Transações
 
 ```
-POST http://localhost:8080/payment-routine/v1/transactions
+POST http://localhost:8080/rotina-pagamento/v1/transactions
 ```
 ```JSON
 {
@@ -138,7 +138,7 @@ Obs: Não é permitido informar um valor negativo para o campo 'amount'.
 ### Cadastro de Lista de Pagamentos
 
 ```
-POST http://localhost:8080/payment-routine/v1/payments
+POST http://localhost:8080/rotina-pagamento/v1/payments
 ```
 ```JSON
 [
