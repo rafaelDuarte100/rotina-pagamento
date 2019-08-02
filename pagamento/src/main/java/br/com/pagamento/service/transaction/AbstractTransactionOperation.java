@@ -12,7 +12,6 @@ import br.com.pagamento.repository.transaction.TransactionRepository;
 import br.com.pagamento.util.account.AccountUtil;
 import br.com.pagamento.validator.transaction.TransactionValidator;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 @AllArgsConstructor
 public abstract class AbstractTransactionOperation implements TransactionOperation {
@@ -20,13 +19,11 @@ public abstract class AbstractTransactionOperation implements TransactionOperati
     protected final TransactionValidator validator;
     protected final TransactionRepository transactionRepository;
 
-    @Getter
     protected List<Transaction> transactionsGenerated;
     protected final AccountUtil accountUtil;
 
-    public List<Transaction> populeTransactions(List<Transaction> transactions) {
+    public List<Transaction> populeTransactions(Transaction transaction) {
         transactionsGenerated = new ArrayList<>();
-        Transaction transaction = transactions.get(0);
         Account account = transaction.getAccount();
         Transaction creditPaymentTransaction = findCreditPaymentTransaction(account);
         validate(transaction, account, creditPaymentTransaction);

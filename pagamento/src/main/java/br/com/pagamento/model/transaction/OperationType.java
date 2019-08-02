@@ -47,7 +47,7 @@ public class OperationType implements Serializable {
         if (getId() == PAGAMENTO)
             return OperationCategory.PAGAMENTO;
         
-            if (getId() == SAQUE)
+        if (getId() == SAQUE)
             return OperationCategory.SAQUE;
 
         return OperationCategory.COMPRA;

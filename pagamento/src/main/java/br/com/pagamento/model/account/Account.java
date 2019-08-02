@@ -27,7 +27,7 @@ public class Account implements Serializable {
 
 	@Id
     @EqualsAndHashCode.Include
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.TABLE)
 	@Column(name="account_id")
 	private Long id;
 	

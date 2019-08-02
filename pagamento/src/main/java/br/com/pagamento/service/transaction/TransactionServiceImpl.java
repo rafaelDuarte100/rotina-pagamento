@@ -1,5 +1,6 @@
 package br.com.pagamento.service.transaction;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -7,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import br.com.pagamento.exception.ResourceException;
 import br.com.pagamento.exception.TransactionNotFoundException;
 import br.com.pagamento.model.transaction.OperationCategory;
 import br.com.pagamento.model.transaction.Transaction;
@@ -16,7 +18,6 @@ import br.com.pagamento.validator.transaction.TransactionValidator;
 import lombok.AllArgsConstructor;
 
 @Service
-@Transactional
 @AllArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
 
@@ -37,34 +38,37 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 
 	@Override
+	@Transactional
 	public List<Transaction> create(Transaction transaction) {
-		validate(Arrays.asList(transaction));
-		loadAccounts(Arrays.asList(transaction));
-		List<Transaction> populatedTransactions = populeTransactions(transaction.getOperationType().getCategory(), Arrays.asList(transaction));
+		validate(transaction);
+		loadAccount(transaction);
+		List<Transaction> populatedTransactions = populeTransactions(transaction.getOperationType().getCategory(), transaction);
 		updateAccounts(populatedTransactions);		
 		return saveTransactions(populatedTransactions);
 	}
-
+	
 	@Override
 	public List<Transaction> createPayments(List<Transaction> transactions) {
-		validate(transactions);
-		loadAccounts(transactions);
-		List<Transaction> populatedTransactions = populeTransactions(OperationCategory.PAGAMENTO, transactions);
-		updateAccounts(populatedTransactions);
-		return saveTransactions(populatedTransactions);
+		List<Transaction> transactionsGenerated = new ArrayList<>();
+		for (Transaction transaction : transactions) {
+			try {
+				transactionsGenerated.addAll(create(transaction));
+			} catch (ResourceException e) {}
+		}
+		return transactionsGenerated;
 	}
 
-	private void validate(List<Transaction> transactions) {
-		transactions.forEach(validator::basicValidations);
+	private void validate(Transaction transaction) {
+		validator.basicValidations(transaction);
 	}
 
-	private void loadAccounts(List<Transaction> transactions) {
-		transactions.forEach(item -> item.setAccount(accountService.findById(item.getAccount().getId())));
+	private void loadAccount(Transaction transaction) {
+		transaction.setAccount(accountService.findById(transaction.getAccount().getId()));
 	}
 
-	private List<Transaction> populeTransactions(OperationCategory operationCategory, List<Transaction> transactions) {
+	private List<Transaction> populeTransactions(OperationCategory operationCategory, Transaction transaction) {
 		return transactionOperationFactory.getTransactionOperation(operationCategory)
-										  .populeTransactions(transactions);
+										  .populeTransactions(transaction);
 	}
 
 	private List<Transaction> saveTransactions(List<Transaction> populatedTransactions) {

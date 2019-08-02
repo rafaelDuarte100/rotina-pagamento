@@ -160,47 +160,6 @@ public class TransactionValidatorTests {
     	transactionValidator.validateTransactionPayment(suficientCreditLimit, suficientCreditLimit.getAccount());
     }
     
-    
-	/*
-	 * @Test(expected = ResourceException.class) public void
-	 * testTransactionWithAccountNotEntered() { Transaction transaction =
-	 * Transaction.builder().account(new Account()).build();
-	 * transactionValidator.validateIfAccountWasEntered(transaction); }
-	 */
-    
-	/*
-	 * @Test(expected = ResourceException.class) public void
-	 * testTransactionWithAccountNotExists() {
-	 * doReturn(false).when(accountRepository).existsById(1L); Transaction
-	 * transaction =
-	 * Transaction.builder().account(Account.builder().id(1L).build()).build();
-	 * transactionValidator.validateIfAccountExists(transaction); }
-	 * 
-	 * @Test(expected = ResourceException.class) public void
-	 * testTransactionWithOperationTypeWasNotEntered() { Transaction transaction =
-	 * Transaction.builder().operationType(new OperationType()).build();
-	 * transactionValidator.validateIfOperationTypeWasEntered(transaction); }
-	 * 
-	 * @Test(expected = ResourceException.class) public void
-	 * testTransactionWithOperationTypeNotExists() {
-	 * doReturn(false).when(operationTypeRepository).existsById(1L); Transaction
-	 * transaction =
-	 * Transaction.builder().operationType(OperationType.builder().id(1L).build()).
-	 * build(); transactionValidator.validateIfOperationTypeExists(transaction); }
-	 * 
-	 * @Test(expected = ResourceException.class) public void
-	 * testTransactionWithAmountWasNotEntered() { Transaction transaction =
-	 * Transaction.builder().build();
-	 * transactionValidator.validateIfAmountWasEntered(transaction); }
-	 * 
-	 * @Test(expected = ResourceException.class) public void
-	 * testTransactionWithAmountLessThanZero() { Transaction transaction =
-	 * Transaction.builder().amount(-1.0).build();
-	 * transactionValidator.validateIfAmountLessThanZero(transaction); }
-	 */
-    
-    
-    
     @Test(expected = ResourceException.class)
     public void testTransactionWithAccountWithCreditLimitNull() {
     	Account account = Account.builder().build();

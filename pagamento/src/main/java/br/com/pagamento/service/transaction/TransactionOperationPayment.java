@@ -22,13 +22,8 @@ public class TransactionOperationPayment extends AbstractTransactionOperation {
     }
 
     @Override
-    public List<Transaction> populeTransactions(List<Transaction> transactions) {
-        transactionsGenerated = new ArrayList<>();
-        transactions.forEach(paymentTransaction -> populePayment(paymentTransaction));
-        return getTransactionsGenerated();
-    } 
-
-    protected void populePayment(Transaction paymentTransaction) {
+    public List<Transaction> populeTransactions(Transaction paymentTransaction) {
+    	transactionsGenerated = new ArrayList<>();
         Account account = paymentTransaction.getAccount();
         validate(paymentTransaction, account, null);
 
@@ -48,6 +43,7 @@ public class TransactionOperationPayment extends AbstractTransactionOperation {
         }
         paymentTransaction.setBalance(paymentBalance);
         transactionsGenerated.add(paymentTransaction);
+        return transactionsGenerated;
     }
 
     private Double calculateTransactionRebate(Transaction transactionToDownPayment, Double paymentBalance) {
