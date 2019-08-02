@@ -2,6 +2,7 @@ package br.com.pagamento.validator.transaction;
 
 import static org.mockito.Mockito.doReturn;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -31,44 +32,174 @@ public class TransactionValidatorTests {
     @Mock
     private OperationTypeRepository operationTypeRepository;
     
+    private Transaction uninformedAccount;
+    
+    private Transaction informedAccount;
+    
+    private Transaction informedOperationType;
+    
+    private Transaction informedNegativeAmount;
+    
+    private Transaction amountGreateThanZero;
+    
+    private Transaction creditLimitNotNull;
+    
+    private Transaction suficientCreditLimit;
+    
+    @Before
+    public void setup() {
+    	uninformedAccount = Transaction.builder().account(new Account()).build();
+    	
+    	Account account = Account.builder().id(1L).build();
+    	informedAccount = Transaction.builder().account(account).operationType(new OperationType()).build();
+    	
+    	OperationType operationType = OperationType.builder().id(1L).build();
+    	informedOperationType = Transaction.builder().account(account).operationType(operationType).build();
+    	
+    	informedNegativeAmount = Transaction.builder().account(account).operationType(operationType).amount(-100D).build();
+    	
+    	amountGreateThanZero = Transaction.builder().account(account).operationType(operationType).amount(99D).build();
+    	
+    	Account accountWithCreditLimit = Account.builder().id(1L).availableCreditLimit(100D).availableWithdrawalLimit(100D).build();
+    	creditLimitNotNull = Transaction.builder().account(accountWithCreditLimit).amount(200D).build();
+    	
+    	suficientCreditLimit = Transaction.builder().account(accountWithCreditLimit).amount(100D).build();
+    	
+    }
     
     @Test(expected = ResourceException.class)
     public void testTransactionWithAccountNotEntered() {
-    	Transaction transaction = Transaction.builder().account(new Account()).build();
-    	transactionValidator.validateIfAccountWasEntered(transaction);
+    	transactionValidator.basicValidations(uninformedAccount);
     }
     
     @Test(expected = ResourceException.class)
     public void testTransactionWithAccountNotExists() {
     	doReturn(false).when(accountRepository).existsById(1L);
-    	Transaction transaction = Transaction.builder().account(Account.builder().id(1L).build()).build();
-    	transactionValidator.validateIfAccountExists(transaction);    	
+    	transactionValidator.basicValidations(informedAccount);
     }
     
     @Test(expected = ResourceException.class)
-    public void testTransactionWithOperationTypeWasNotEntered() {
-    	Transaction transaction = Transaction.builder().operationType(new OperationType()).build();
-    	transactionValidator.validateIfOperationTypeWasEntered(transaction);
+    public void testTransactionWithOperationTypeNotEntered() {
+    	doReturn(true).when(accountRepository).existsById(1L);
+    	transactionValidator.basicValidations(informedAccount);
     }
     
     @Test(expected = ResourceException.class)
     public void testTransactionWithOperationTypeNotExists() {
+    	doReturn(true).when(accountRepository).existsById(1L);
     	doReturn(false).when(operationTypeRepository).existsById(1L);
-    	Transaction transaction = Transaction.builder().operationType(OperationType.builder().id(1L).build()).build();
-    	transactionValidator.validateIfOperationTypeExists(transaction);    	
+    	transactionValidator.basicValidations(informedOperationType);
     }
     
     @Test(expected = ResourceException.class)
-    public void testTransactionWithAmountWasNotEntered() {
-    	Transaction transaction = Transaction.builder().build();
-    	transactionValidator.validateIfAmountWasEntered(transaction);
+    public void testTransactionWithAmountNotEntered() {
+    	doReturn(true).when(accountRepository).existsById(1L);
+    	doReturn(true).when(operationTypeRepository).existsById(1L);
+    	transactionValidator.basicValidations(informedOperationType);
     }
     
     @Test(expected = ResourceException.class)
     public void testTransactionWithAmountLessThanZero() {
-    	Transaction transaction = Transaction.builder().amount(-1.0).build();
-    	transactionValidator.validateIfAmountLessThanZero(transaction);
+    	doReturn(true).when(accountRepository).existsById(1L);
+    	doReturn(true).when(operationTypeRepository).existsById(1L);
+    	transactionValidator.basicValidations(informedNegativeAmount);
     }
+    
+    @Test
+    public void testTransactionBasciValidation() {
+    	doReturn(true).when(accountRepository).existsById(1L);
+    	doReturn(true).when(operationTypeRepository).existsById(1L);
+    	transactionValidator.basicValidations(amountGreateThanZero);
+    }
+    
+    @Test(expected = ResourceException.class)
+    public void testTransactionCashPurchaseWithCreditLimitNull() {
+    	transactionValidator.validateTransactionCashPurchase(amountGreateThanZero, 
+    														 amountGreateThanZero.getAccount(), null);
+    }
+    
+    @Test(expected = ResourceException.class)
+    public void testTransactionCashPurchaseWithInsuficientCreditLimit() {
+    	transactionValidator.validateTransactionCashPurchase(creditLimitNotNull, 
+				 											 creditLimitNotNull.getAccount(), null);    	
+    }
+    
+    @Test
+    public void testTransactionCashPurchaseWithSuficientCreditLimit() {
+    	transactionValidator.validateTransactionCashPurchase(suficientCreditLimit, 
+    														 suficientCreditLimit.getAccount(), null);    	
+    }
+    
+    @Test(expected = ResourceException.class)
+    public void testTransactionWithdrawWithWithdrawalLimitNull() {
+    	transactionValidator.validateTransactionWithdraw(amountGreateThanZero, 
+    													 amountGreateThanZero.getAccount(), null);
+    }
+    
+    @Test(expected = ResourceException.class)
+    public void testTransactionCashPurchaseWithInsuficientWithdrawLimit() {
+    	transactionValidator.validateTransactionWithdraw(creditLimitNotNull, 
+    													 creditLimitNotNull.getAccount(), null);
+    }
+    
+    @Test
+    public void testTransactionCashPurchaseWithSuficientWithdrawLimit() {
+    	transactionValidator.validateTransactionWithdraw(suficientCreditLimit, 
+    													 suficientCreditLimit.getAccount(), null);    	
+    }
+    
+    @Test(expected = ResourceException.class)
+    public void testTransactionPaymentWithNoOutStandingBalance() {
+    	doReturn(false).when(accountRepository).thereIsOutstandingBalance(1L);
+    	transactionValidator.validateTransactionPayment(suficientCreditLimit, suficientCreditLimit.getAccount());
+    }
+    
+    @Test
+    public void testTransactionPaymentWithOutStandingBalance() {
+    	doReturn(true).when(accountRepository).thereIsOutstandingBalance(1L);
+    	transactionValidator.validateTransactionPayment(suficientCreditLimit, suficientCreditLimit.getAccount());
+    }
+    
+    
+	/*
+	 * @Test(expected = ResourceException.class) public void
+	 * testTransactionWithAccountNotEntered() { Transaction transaction =
+	 * Transaction.builder().account(new Account()).build();
+	 * transactionValidator.validateIfAccountWasEntered(transaction); }
+	 */
+    
+	/*
+	 * @Test(expected = ResourceException.class) public void
+	 * testTransactionWithAccountNotExists() {
+	 * doReturn(false).when(accountRepository).existsById(1L); Transaction
+	 * transaction =
+	 * Transaction.builder().account(Account.builder().id(1L).build()).build();
+	 * transactionValidator.validateIfAccountExists(transaction); }
+	 * 
+	 * @Test(expected = ResourceException.class) public void
+	 * testTransactionWithOperationTypeWasNotEntered() { Transaction transaction =
+	 * Transaction.builder().operationType(new OperationType()).build();
+	 * transactionValidator.validateIfOperationTypeWasEntered(transaction); }
+	 * 
+	 * @Test(expected = ResourceException.class) public void
+	 * testTransactionWithOperationTypeNotExists() {
+	 * doReturn(false).when(operationTypeRepository).existsById(1L); Transaction
+	 * transaction =
+	 * Transaction.builder().operationType(OperationType.builder().id(1L).build()).
+	 * build(); transactionValidator.validateIfOperationTypeExists(transaction); }
+	 * 
+	 * @Test(expected = ResourceException.class) public void
+	 * testTransactionWithAmountWasNotEntered() { Transaction transaction =
+	 * Transaction.builder().build();
+	 * transactionValidator.validateIfAmountWasEntered(transaction); }
+	 * 
+	 * @Test(expected = ResourceException.class) public void
+	 * testTransactionWithAmountLessThanZero() { Transaction transaction =
+	 * Transaction.builder().amount(-1.0).build();
+	 * transactionValidator.validateIfAmountLessThanZero(transaction); }
+	 */
+    
+    
     
     @Test(expected = ResourceException.class)
     public void testTransactionWithAccountWithCreditLimitNull() {
@@ -110,5 +241,13 @@ public class TransactionValidatorTests {
     	Account account = Account.builder().availableWithdrawalLimit(47.0).build();
     	Transaction positiveBalancePayment = Transaction.builder().balance(60.).build();
     	transactionValidator.validateAvailableWithdrawalLimit(account, transaction, positiveBalancePayment);
+    }
+    
+    @Test(expected = ResourceException.class)
+    public void testTransactionWithAccountNoOutstandingBalance() {
+    	doReturn(false).when(accountRepository).thereIsOutstandingBalance(1L);
+    	Account account = Account.builder().id(1L).build();
+    	Transaction transaction = Transaction.builder().account(account).build();
+    	transactionValidator.validateIfThereIsOutstandingBalance(transaction);
     }
 }

@@ -1,5 +1,6 @@
 package br.com.pagamento.validator.account;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -18,24 +19,62 @@ public class AccountValidatorTests {
 
     @Mock
     private SourceMessage messageSource;
+    
+    private Account availableCreditLimitLessThanZero;
+    
+    private Account availableCreditLimitGreaterThanZero;
+    
+    private Account availableWithdrawalLimitLessThanZero;
+    
+    private Account availableWithdrawalLimitGreaterThanZero;
+    
+    @Before
+    public void setup() {
+    	availableCreditLimitLessThanZero = Account.builder().availableCreditLimit(-1D).build();
+    	availableCreditLimitGreaterThanZero = Account.builder().availableCreditLimit(1D).build();
+    	
+    	availableWithdrawalLimitLessThanZero = Account.builder().availableWithdrawalLimit(-1D).build();
+    	availableWithdrawalLimitGreaterThanZero = Account.builder().availableWithdrawalLimit(1D).build();
+    }
 
     @Test(expected = ResourceException.class)
     public void createAccountWithAvailableCreditLimitLessThanZero() {
-        accountValidator.validateAccountCreation(Account.builder().availableCreditLimit(-1D).build());
+        accountValidator.validateAccountCreation(availableCreditLimitLessThanZero);
+    }
+    
+    @Test
+    public void createAccountWithAvailableCreditLimitGreaterThanZero() {
+        accountValidator.validateAccountCreation(availableCreditLimitGreaterThanZero);
     }
 
     @Test(expected = ResourceException.class)
     public void createAccountWithAvailableWithdrawalLimitLessThanZero() {
-        accountValidator.validateAccountCreation(Account.builder().availableWithdrawalLimit(-1D).build());
+        accountValidator.validateAccountCreation(availableWithdrawalLimitLessThanZero);
+    }
+    
+    @Test
+    public void createAccountWithAvailableWithdrawalLimitGreaterThanZero() {
+        accountValidator.validateAccountCreation(availableWithdrawalLimitGreaterThanZero);
     }
 
     @Test(expected = ResourceException.class)
     public void updateAccountWithAvailableCreditLimitLessThanZero() {
-        accountValidator.validateAccountUpdate(Account.builder().availableCreditLimit(-1D).build());
+        accountValidator.validateAccountUpdate(availableCreditLimitLessThanZero);
+    }
+    
+    @Test
+    public void updateAccountWithAvailableCreditLimitGreaterThanZero() {
+        accountValidator.validateAccountUpdate(availableCreditLimitGreaterThanZero);
     }
 
     @Test(expected = ResourceException.class)
     public void updateAccountWithAvailableWithdrawalLimitLessThanZero() {
-        accountValidator.validateAccountUpdate(Account.builder().availableWithdrawalLimit(-1D).build());
+        accountValidator.validateAccountUpdate(availableWithdrawalLimitLessThanZero);
     }
+    
+    @Test
+    public void updateAccountWithAvailableWithdrawalLimitGreaterThanZero() {
+        accountValidator.validateAccountUpdate(availableWithdrawalLimitGreaterThanZero);
+    }
+
 }
