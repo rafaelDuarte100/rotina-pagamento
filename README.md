@@ -194,7 +194,8 @@ A tabela abaixo sugere os tipos de operações possíveis para realização de t
 ```SHELL
 > git clone https://github.com/rafaelDuarte100/rotina-pagamento.git
 > cd rotina-pagamento\pagamento
-> run_windows.bat
+> mvn clean package -DskipTests dockerfile:build
+> docker-compose up
 ```
 * No Linux:
 ```SHELL
