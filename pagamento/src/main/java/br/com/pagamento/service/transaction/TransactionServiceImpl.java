@@ -1,7 +1,6 @@
 package br.com.pagamento.service.transaction;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 

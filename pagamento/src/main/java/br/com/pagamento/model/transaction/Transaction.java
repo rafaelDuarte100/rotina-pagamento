@@ -31,7 +31,7 @@ public class Transaction implements Serializable {
 
     @Id
     @EqualsAndHashCode.Include
-	@GeneratedValue(strategy=GenerationType.TABLE)
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="transaction_id")
     private Long id;
     
