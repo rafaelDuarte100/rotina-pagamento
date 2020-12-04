@@ -1,11 +1,30 @@
-FROM openjdk:8-jdk-alpine
+#Fonte: https://medium.com/@tariqul.islam.rony/spring-boot-and-multi-stage-dockerized-image-with-mysql-in-docker-compose-part-3-2999b2bdf6aa
+# Build Stage for Spring boot application image
+FROM openjdk:8-jdk-alpine as build
 
-VOLUME /tmp
+WORKDIR /app
 
-COPY target/pagamento*.jar app.jar
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
 
-ENTRYPOINT ["java", "-Dspring.profiles.active=docker", "-jar", "/app.jar"]
+RUN chmod +x ./mvnw
+# download the dependency if needed or if the pom file is changed
+RUN ./mvnw dependency:go-offline -B
 
-EXPOSE 8080
+COPY src src
 
-RUN echo 'Iniciando aplicacao...'
+RUN ./mvnw package -DskipTests
+RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
+
+# Production Stage for Spring boot application image
+FROM openjdk:8-jre-alpine as production
+ARG DEPENDENCY=/app/target/dependency
+
+# Copy the dependency application file from build stage artifact
+COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
+COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
+COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
+
+# Run the Spring boot application
+ENTRYPOINT ["java", "-Dspring.profiles.active=docker", "-cp", "app:app/lib/*","br.com.pagamento.RotinaDePagamentoApplication"]
