@@ -17,10 +17,20 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
            "WHERE t.operationType.id = " + OperationType.PAGAMENTO + 
            "AND t.balance > 0 " +
            "AND t.account.id = :accountId ")
-    public Transaction findCreditPaymentTransaction(@Param("accountId") Long accountId);
+    Transaction findCreditPaymentTransaction(@Param("accountId") Long accountId);
 
     @Query("FROM Transaction t " +
            "WHERE t.balance < 0 AND t.account.id = :accountId " +
            "ORDER BY t.operationType.chargeOrder, t.eventDate ")
-    public List<Transaction> findTransactionsToDownPayment(@Param("accountId") Long accountId);
+    List<Transaction> findTransactionsToDownPayment(@Param("accountId") Long accountId);
+
+    @Query(
+        "SELECT " +
+        "   t " +
+        "FROM " +
+        "   Transaction t " +
+        "   JOIN t.account c " +
+        "WHERE " +
+        "   c.id = :accountId ")
+    List<Transaction> findAllByAccountId(@Param("accountId") Long accountId);
 }

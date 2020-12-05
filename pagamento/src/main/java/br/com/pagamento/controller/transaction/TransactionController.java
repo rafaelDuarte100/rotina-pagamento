@@ -9,12 +9,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import org.hibernate.annotations.Parameter;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import br.com.pagamento.dto.transaction.TransactionDTO;
 import br.com.pagamento.dto.transaction.TransactionPostDTO;
@@ -23,6 +21,8 @@ import br.com.pagamento.model.transaction.OperationType;
 import br.com.pagamento.model.transaction.Transaction;
 import br.com.pagamento.service.transaction.TransactionService;
 import lombok.AllArgsConstructor;
+
+import static java.util.stream.Collectors.toList;
 
 @RestController
 @AllArgsConstructor
@@ -40,7 +40,7 @@ public class TransactionController {
         return transactionService.findAll()
                                  .stream()
                                  .map(transaction -> convertToDTO(transaction))
-                                 .collect(Collectors.toList());
+                                 .collect(toList());
     }
 
     @ApiOperation(value = "Busca uma transação por ID.")
@@ -50,7 +50,7 @@ public class TransactionController {
             @ApiResponse(code = 500, message = "Ocorreu um erro não esperado.", response = ErrorMessage.class),
     })
     @GetMapping(value = "/transactions/{id}", produces = "application/json")
-    public TransactionDTO findById(@PathVariable(name = "id", required = true) Long id) {
+    public TransactionDTO findById(@PathVariable(name = "id") Long id) {
         return convertToDTO(transactionService.findById(id));
     }
 
@@ -66,7 +66,7 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.create(convertToTransaction(transactionPostDTO))
                                                    .stream()
                                                    .map(transaction -> convertToDTO(transaction))
-                                                   .collect(Collectors.toList()));
+                                                   .collect(toList()));
     }
 
     @ApiOperation(value = "Cria uma lista de transações do tipo Pagamento")
@@ -74,19 +74,31 @@ public class TransactionController {
             @ApiResponse(code = 200, message = "Retorna a lista de transações cadastradas.", response = AccountDTO.class),
             @ApiResponse(code = 500, message = "Ocorreu um erro não esperado.", response = ErrorMessage.class),
     })
-    @PostMapping(value = "/payments", produces = "application/json")
+    @PostMapping(value = "/transactions/payments", produces = "application/json")
     public ResponseEntity<List<TransactionDTO>> createPayments(@RequestBody(required = true) List<TransactionPostDTO> payments) {
         List<Transaction> transactions = payments.stream()
                                                  .map(dto -> convertToPayment(dto))
-                                                 .collect(Collectors.toList());
+                                                 .collect(toList());
 
         List<TransactionDTO> dtos =  transactionService
                                         .createPayments(transactions)
                                         .stream()
                                         .map(transaction -> convertToDTO(transaction))
-                                        .collect(Collectors.toList());
+                                        .collect(toList());
 
         return ResponseEntity.ok(dtos);
+    }
+
+    @ApiOperation(value = "Busca as transações de uma conta específica.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Retorna as transações encontradas para a CONTA informada.", response = AccountDTO.class),
+            @ApiResponse(code = 500, message = "Ocorreu um erro não esperado.", response = ErrorMessage.class),
+    })
+    @GetMapping(value = "/transactions/account/{account_id}", produces = "application/json")
+    public List<TransactionDTO> findAllByAccount(@PathVariable(name = "account_id") Long accountId) {
+        return transactionService.findAllByAccount(accountId).stream()
+                .map(this::convertToDTO)
+                .collect(toList());
     }
 
     public TransactionDTO convertToDTO(Transaction transaction) {

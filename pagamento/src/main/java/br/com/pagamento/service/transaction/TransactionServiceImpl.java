@@ -57,6 +57,11 @@ public class TransactionServiceImpl implements TransactionService {
 		return transactionsGenerated;
 	}
 
+	@Override
+	public List<Transaction> findAllByAccount(Long accountId) {
+		return transactionRepository.findAllByAccountId(accountId);
+	}
+
 	private void validate(Transaction transaction) {
 		validator.basicValidations(transaction);
 	}

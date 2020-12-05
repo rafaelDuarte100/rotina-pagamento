@@ -6,11 +6,13 @@ import br.com.pagamento.model.transaction.Transaction;
 
 public interface TransactionService {
 
-    public List<Transaction> findAll();
+    List<Transaction> findAll();
 
-    public Transaction findById(Long id);
+    Transaction findById(Long id);
     
-    public List<Transaction> create(Transaction transaction);
+    List<Transaction> create(Transaction transaction);
 
-    public List<Transaction> createPayments(List<Transaction> transactions);
+    List<Transaction> createPayments(List<Transaction> transactions);
+
+    List<Transaction> findAllByAccount(Long accountId);
 }
