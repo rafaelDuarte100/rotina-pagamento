@@ -58,7 +58,7 @@ public class AccountUtilTests {
     @Test
     public void testUpdateCreditLimitAccountWithNonNullCreditLimitWithNonNullValue() {
     	Account accountUpdated = accountUtil.updateAccountLimits(accountWithAvailableLimitsNonNull, newAccountWithAvailableLimitsNonNull);
-    	assertThat(accountUpdated.getAvailableCreditLimit(), equalTo(200.02));
+    	assertThat(accountUpdated.getAvailableCreditLimit(), equalTo(newAccountWithAvailableLimitsNonNull.getAvailableCreditLimit()));
     }
     
     @Test
@@ -82,7 +82,7 @@ public class AccountUtilTests {
     @Test
     public void testUpdateWithdrawalLimitAccountWithNonNullWithdrawalLimitWithNonNullValue() {
     	Account accountUpdated = accountUtil.updateAccountLimits(accountWithAvailableLimitsNonNull, newAccountWithAvailableLimitsNonNull);
-    	assertThat(accountUpdated.getAvailableWithdrawalLimit(), equalTo(157.66));
+    	assertThat(accountUpdated.getAvailableWithdrawalLimit(), equalTo(newAccountWithAvailableLimitsNonNull.getAvailableWithdrawalLimit()));
     }
     
     @Test

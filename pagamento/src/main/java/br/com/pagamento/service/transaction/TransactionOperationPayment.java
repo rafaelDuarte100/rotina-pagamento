@@ -53,10 +53,10 @@ public class TransactionOperationPayment extends AbstractTransactionOperation {
 
     private void returnAvailableAccountLimite(Account account, Transaction transactionToDownPayment, Double returnedValue) {
         if (transactionToDownPayment.getOperationType().getCategory().equals(OperationCategory.SAQUE)) {
-            account.setAvailableWithdrawalLimit(accountUtil.addAccountWithdrawalLimit(account, returnedValue));
+            account.setAvailableWithdrawalLimit(accountUtil.sumAvailableLimit(account.getAvailableWithdrawalLimit(), returnedValue));
         }
         else {
-        	account.setAvailableCreditLimit(accountUtil.addAccountCreditLimit(account, returnedValue));
+        	account.setAvailableCreditLimit(accountUtil.sumAvailableLimit(account.getAvailableCreditLimit(), returnedValue));
         }
     }
 

@@ -13,13 +13,13 @@ import br.com.pagamento.model.account.Account;
 public class AccountUtil {
 
 	public Account updateAccountLimits(Account accountDB, Account newAccount) {
-		accountDB.setAvailableCreditLimit(addAccountCreditLimit(accountDB, newAccount.getAvailableCreditLimit()));
-		accountDB.setAvailableWithdrawalLimit(addAccountWithdrawalLimit(accountDB, newAccount.getAvailableWithdrawalLimit()));
+		accountDB.setAvailableCreditLimit(updateAccountCreditLimit(accountDB, newAccount.getAvailableCreditLimit()));
+		accountDB.setAvailableWithdrawalLimit(updateAccountWithdrawalLimit(accountDB, newAccount.getAvailableWithdrawalLimit()));
 		return accountDB;
 	}
 	
-	public Double addAccountCreditLimit(Account account, Double creditLimit) {
-		if (creditLimit < 0) {
+	public Double updateAccountCreditLimit(Account account, Double creditLimit) {
+		if (nonNull(creditLimit) && creditLimit < 0) {
 			return sumAvailableLimit(account.getAvailableCreditLimit(), creditLimit);
 		}
 		else {
@@ -27,8 +27,8 @@ public class AccountUtil {
 		}
 	}
 	
-	public Double addAccountWithdrawalLimit(Account account, Double withdrawalLimit) {
-		if (withdrawalLimit < 0) {
+	public Double updateAccountWithdrawalLimit(Account account, Double withdrawalLimit) {
+		if (nonNull(withdrawalLimit) && withdrawalLimit < 0) {
 			return sumAvailableLimit(account.getAvailableWithdrawalLimit(), withdrawalLimit);
 		}
 		else {
