@@ -19,11 +19,21 @@ public class AccountUtil {
 	}
 	
 	public Double addAccountCreditLimit(Account account, Double creditLimit) {
-		return sumAvailableLimit(account.getAvailableCreditLimit(), creditLimit);
+		if (creditLimit < 0) {
+			return sumAvailableLimit(account.getAvailableCreditLimit(), creditLimit);
+		}
+		else {
+			return creditLimit;
+		}
 	}
 	
-	public Double addAccountWithdrawalLimit(Account account, Double WithdrawalLimit) {
-		return sumAvailableLimit(account.getAvailableWithdrawalLimit(), WithdrawalLimit);
+	public Double addAccountWithdrawalLimit(Account account, Double withdrawalLimit) {
+		if (withdrawalLimit < 0) {
+			return sumAvailableLimit(account.getAvailableWithdrawalLimit(), withdrawalLimit);
+		}
+		else {
+			return withdrawalLimit;
+		}
 	}
 	
 	public Double sumAvailableLimit(Double availableLimitCurrent, Double availableLimitAdd) {
