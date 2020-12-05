@@ -106,6 +106,55 @@ Resposta:
 ]
 ```
 
+### Consulta de Transações por ID
+
+```
+GET http://localhost:8080/rotina-pagamento/v1/transactions/{id}
+```
+Resposta:
+
+```JSON
+    {
+        "amount": 0.0,
+        "balance": 0.0,
+        "transaction_id": 0,
+        "account_id": 0,
+        "operation_type_id": 0,
+        "event_date": null,
+        "due_date": null
+    }
+```
+
+### Consulta de Transações por Conta
+
+```
+GET http://localhost:8080/rotina-pagamento/v1/transactions/account/{account_id}
+```
+Resposta:
+
+```JSON
+[
+    {
+        "amount": 0.0,
+        "balance": 0.0,
+        "transaction_id": 0,
+        "account_id": 0,
+        "operation_type_id": 0,
+        "event_date": null,
+        "due_date": null
+    },
+    {
+        "amount": 0.0,
+        "balance": 0.0,
+        "transaction_id": 0,
+        "account_id": 0,
+        "operation_type_id": 0,
+        "event_date": null,
+        "due_date": null
+    }
+]
+```
+
 ### Cadastro de Transações
 
 ```
@@ -173,7 +222,7 @@ Obs: Não é permitido cadastrar um pagamento para uma conta que não possua con
 
 ## Tipos de Operações
 
-A tabela abaixo sugere os tipos de operações possíveis para realização de transações.
+A tabela abaixo lista os tipos de operações possíveis para realização de transações.
 
 | operation_type_id | descrição        |
 |-------------------|------------------|
@@ -187,21 +236,20 @@ A tabela abaixo sugere os tipos de operações possíveis para realização de t
 * Maven 3
 * Docker
 * Docker-Compose
+* Swagger
 
-## Executando o projeto com docker-compose
-
-* No Windows:
+## Executando o projeto:
 ```SHELL
 > git clone https://github.com/rafaelDuarte100/rotina-pagamento.git
-> cd rotina-pagamento\pagamento
-> mvn clean package -DskipTests dockerfile:build
+> cd rotina-pagamento/pagamento/
 > docker-compose up
 ```
-* No Linux:
+
+## Executando os testes:
 ```SHELL
 > git clone https://github.com/rafaelDuarte100/rotina-pagamento.git
-> cd rotina-pagamento/pagamento
-> ./run.sh
+> cd rotina-pagamento/pagamento/
+> mvn test
 ```
 
 ## Autores
