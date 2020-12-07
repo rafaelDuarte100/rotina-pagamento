@@ -251,6 +251,9 @@ A tabela abaixo lista os tipos de operações possíveis para realização de tr
 > cd rotina-pagamento/pagamento/
 > mvn test
 ```
+## Swagger:
+* Com a aplicação rodando acesse: http://localhost:8080/rotina-pagamento/v1/swagger-ui.html
+
 ## Endereço da aplicação no heroku:
 * [Rotina pagamentos](http://rotina-pagamentos.herokuapp.com/rotina-pagamento/v1/swagger-ui.html)
 
